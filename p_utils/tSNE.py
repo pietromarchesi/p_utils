@@ -23,6 +23,7 @@ def Hbeta(D = np.array([]), beta = 1.0):
 	P = P / sumP;
 	return H, P;
 
+# test
 
 def x2p(X = np.array([]), tol = 1e-5, perplexity = 30.0):
 	"""Performs a binary search to get P-values in such a way that each conditional Gaussian has the same perplexity."""
