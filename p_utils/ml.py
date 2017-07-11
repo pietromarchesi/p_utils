@@ -1,5 +1,7 @@
 import numpy as np
 import sklearn.discriminant_analysis
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import cross_val_score
 
 "Machine learning related utilities"
 
@@ -50,3 +52,34 @@ def lda_debiased(X, y, n_surr):
         surr[s] = lda_score(X, ys)
 
     return lda, surr.mean()
+
+
+def oob_debiased(X, y, n_estimators=50, n_surr=50):
+
+    rf = RandomForestClassifier(oob_score=True, n_estimators=n_estimators)
+    rf.fit(X, y)
+    oob = rf.oob_score_
+
+    surr = np.zeros(n_surr)
+    for s in range(n_surr):
+        ys = np.random.permutation(y)
+        rf = RandomForestClassifier(oob_score=True, n_estimators=n_estimators)
+        rf.fit(X, ys)
+        surr[s] = rf.oob_score_
+
+    return oob, surr.mean()
+
+
+
+def cross_val_debiased_score(clf, X, y, cv=5, n_surr=50):
+
+    scores = cross_val_score(clf, X, y, cv=cv)
+
+    surr = np.zeros(n_surr)
+    for s in range(n_surr):
+        ys = np.random.permutation(y)
+        surr_scores = cross_val_score(clf, X, ys, cv=cv)
+        surr[s] = surr_scores.mean()
+
+    return scores, surr.mean()
+
